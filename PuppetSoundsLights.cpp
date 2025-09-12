@@ -1,53 +1,54 @@
-// === Pins ===
-const int BTN1 = 2;          // button 1 (to GND, use INPUT_PULLUP)
-const int BTN2 = 3;          // button 2 (to GND, use INPUT_PULLUP)
-const int LED1 = 9;          // LED for button 1
-const int LED2 = 10;         // LED for button 2
-const int BUZZ = 8;          // piezo/speaker
+// Required for Arduino functions and types
+#include <Arduino.h>
+// === Pin Assignments ===
+const int BTN1 = 2;    // Button 1 (to GND, use INPUT_PULLUP)
+const int BTN2 = 3;    // Button 2 (to GND, use INPUT_PULLUP)
+const int LED1 = 9;    // LED for button 1
+const int LED2 = 10;   // LED for button 2
+const int BUZZ = 8;    // Piezo/speaker
 
-// === Notes (Hz) used ===
-#define REST 0
-#define NOTE_B4  494
-#define NOTE_C5  523
+// === Musical Notes (Hz) ===
+#define REST    0
+#define NOTE_B4 494
+#define NOTE_C5 523
 #define NOTE_DS5 622
-#define NOTE_E6  1319
 #define NOTE_FS5 740
-#define NOTE_G6  1568
-#define NOTE_B5  988
-#define NOTE_C6  1046
-#define NOTE_E7  2637
-#define NOTE_C7  2093
-#define NOTE_G7  3136
-#define NOTE_G6  1568
+#define NOTE_B5 988
+#define NOTE_C6 1046
+#define NOTE_E6 1319
+#define NOTE_C7 2093
+#define NOTE_E7 2637
+#define NOTE_G6 1568
+#define NOTE_G7 3136
+#define NOTE_A6 1760
+#define NOTE_B6 1976
+#define NOTE_AS6 1865
 
-// === PAC-MAN intro (recognizable snippet) ===
-// Source melody adapted to WS2812/tone examples
-int pac_notes[] = {
+// === PAC-MAN Intro Melody ===
+const int pac_notes[] = {
   NOTE_B4, NOTE_B5, NOTE_FS5, NOTE_DS5, NOTE_B5, NOTE_FS5, NOTE_DS5,
   NOTE_C5, NOTE_C6, NOTE_G6, NOTE_E6, NOTE_C6, NOTE_G6, NOTE_E6
 };
-// durations in ms (roughly 120–140 BPM feel)
-int pac_durs[] = {
+const int pac_durs[] = {
   150, 150, 150, 150, 180, 150, 150,
   150, 150, 150, 150, 180, 150, 150
 };
-const int PAC_LEN = sizeof(pac_notes)/sizeof(pac_notes[0]);
+const int PAC_LEN = sizeof(pac_notes) / sizeof(pac_notes[0]);
 
-// === Super Mario Bros. Overworld (opening motif) ===
-int mario_notes[] = {
+// === Super Mario Bros. Overworld Melody ===
+const int mario_notes[] = {
   NOTE_E7, NOTE_E7, REST, NOTE_E7, REST, NOTE_C7, NOTE_E7, REST,
   NOTE_G7, REST, NOTE_G6, REST,
   NOTE_C7, REST, NOTE_G6, REST, NOTE_E6, REST,
   NOTE_A6, REST, NOTE_B6, REST, NOTE_AS6, NOTE_A6
 };
-// For simplicity keep uniform-ish phrasing
-int mario_durs[] = {
+const int mario_durs[] = {
   200, 200, 120, 200, 120, 200, 200, 120,
   200, 140, 200, 140,
   200, 120, 200, 120, 240, 120,
   200, 120, 200, 120, 160, 200
 };
-const int MARIO_LEN = sizeof(mario_notes)/sizeof(mario_notes[0]);
+const int MARIO_LEN = sizeof(mario_notes) / sizeof(mario_notes[0]);
 
 void setup() {
   pinMode(BTN1, INPUT_PULLUP);
