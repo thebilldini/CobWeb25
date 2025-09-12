@@ -6,6 +6,7 @@ const int BTN2 = 3;    // Button 2 (to GND, use INPUT_PULLUP)
 const int LED1 = 9;    // LED for button 1
 const int LED2 = 10;   // LED for button 2
 const int BUZZ = 8;    // Piezo/speaker
+const int SIGNAL_PIN = 4; // Pin to signal puppetBaseLights (connect to its pin 2)
 
 // === Musical Notes (Hz) ===
 #define REST    0
@@ -56,16 +57,22 @@ void setup() {
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
   pinMode(BUZZ, OUTPUT);
+  pinMode(SIGNAL_PIN, OUTPUT);
+  digitalWrite(SIGNAL_PIN, LOW); // Start with signal LOW
   holdState();
 }
 
 void loop() {
   // HOLD: lights off, no sound, wait for a press (active-low)
   if (digitalRead(BTN1) == LOW) {
+    digitalWrite(SIGNAL_PIN, HIGH); // Signal puppetBaseLights to hold
     playFor10s(LED1, pac_notes, pac_durs, PAC_LEN);
+    digitalWrite(SIGNAL_PIN, LOW);  // Release hold after playing
     holdState();
   } else if (digitalRead(BTN2) == LOW) {
+    digitalWrite(SIGNAL_PIN, HIGH); // Signal puppetBaseLights to hold
     playFor10s(LED2, mario_notes, mario_durs, MARIO_LEN);
+    digitalWrite(SIGNAL_PIN, LOW);  // Release hold after playing
     holdState();
   }
   // tiny debounce
