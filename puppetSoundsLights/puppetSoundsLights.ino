@@ -2,6 +2,8 @@
 #include <Arduino.h>
 #include "pitches.h"
 
+#define REST 0
+
 // === Pin Assignments ===
 const int BTN1 = 2;    // Button 1 (to GND, use INPUT_PULLUP)
 const int BTN2 = 3;    // Button 2 (to GND, use INPUT_PULLUP)
@@ -10,131 +12,157 @@ const int LED2 = 10;   // LED for button 2
 const int BUZZ = 8;    // Piezo/speaker
 const int SIGNAL_PIN = 4; // Pin to signal puppetBaseLights (connect to its pin 2)
 
-// === Musical Notes (Hz) ===
-#define REST    0
-#define NOTE_B4 494
-#define NOTE_C5 523
-#define NOTE_DS5 622
-#define NOTE_FS5 740
-#define NOTE_B5 988
-#define NOTE_C6 1046
-#define NOTE_E6 1319
-#define NOTE_C7 2093
-#define NOTE_E7 2637
-#define NOTE_G6 1568
-#define NOTE_G7 3136
-#define NOTE_A6 1760
-#define NOTE_B6 1976
-#define NOTE_AS6 1865
-
-// === PAC-MAN Intro Melody ===
-const int pac_notes[] = {
-  NOTE_B4, NOTE_B5, NOTE_FS5, NOTE_DS5, NOTE_B5, NOTE_FS5, NOTE_DS5,
-  NOTE_C5, NOTE_C6, NOTE_G6, NOTE_E6, NOTE_C6, NOTE_G6, NOTE_E6
+// === Imperial March Melody ===
+const int imperial_notes[] = {
+  NOTE_A4, NOTE_A4, NOTE_F4, NOTE_C5, NOTE_A4, NOTE_F4, NOTE_C5, NOTE_A4,
+  NOTE_E5, NOTE_E5, NOTE_E5, NOTE_F5, NOTE_C5, NOTE_GS4, NOTE_F4, NOTE_C5, NOTE_A4,
+  REST, NOTE_A5, NOTE_A4, NOTE_A4, NOTE_A5, NOTE_GS5, NOTE_G5, NOTE_FS5, NOTE_F5, NOTE_FS5,
+  REST, NOTE_AS4, NOTE_DS5, NOTE_D5, NOTE_CS5, NOTE_C5, NOTE_B4, NOTE_C5,
+  REST, NOTE_F4, NOTE_GS4, NOTE_F4, NOTE_C5, NOTE_A4,
+  REST
 };
-const int pac_durs[] = {
-  150, 150, 150, 150, 180, 150, 150,
-  150, 150, 150, 150, 180, 150, 150
+const int imperial_durs[] = {
+  550, 550, 550, 385, 165, 550, 385, 165,
+  550, 385, 165, 550, 385, 165, 550, 385, 165,
+  550, 550, 550, 550, 385, 165, 550, 385, 165,
+  550, 275, 550, 275, 550, 138, 138, 275,
+  275, 275, 550, 275, 550, 275,
+  1100
 };
-const int PAC_LEN = sizeof(pac_notes) / sizeof(pac_notes[0]);
+const int IMPERIAL_LEN = sizeof(imperial_notes) / sizeof(imperial_notes[0]);
 
-// === Super Mario Bros. Overworld Melody ===
-const int mario_notes[] = {
-  NOTE_E7, NOTE_E7, REST, NOTE_E7, REST, NOTE_C7, NOTE_E7, REST,
-  NOTE_G7, REST, NOTE_G6, REST,
-  NOTE_C7, REST, NOTE_G6, REST, NOTE_E6, REST,
-  NOTE_A6, REST, NOTE_B6, REST, NOTE_AS6, NOTE_A6
+// === New Toccata Melody ===
+const int toccataMel[] = {
+  NOTE_A5, NOTE_G6, NOTE_A5, REST,
+  NOTE_G5, NOTE_F5, NOTE_E5, NOTE_D5,
+  NOTE_CS6, REST, NOTE_D6, REST,
+  NOTE_A4, NOTE_G5, NOTE_A4, REST,
+  NOTE_E4, REST, NOTE_F4, REST,
+  NOTE_CS5, REST, NOTE_D5, REST,
+  NOTE_A3, NOTE_G4, NOTE_A3, REST,
+  NOTE_G3, NOTE_F3, NOTE_E3, NOTE_D3,
+  NOTE_CS4, REST, NOTE_D4, REST,
+  NOTE_D3, NOTE_D3, NOTE_AS3, REST,
+  NOTE_CS4, REST, NOTE_D4, REST,
+  NOTE_E4, REST, NOTE_E4, REST,
+  NOTE_E4, NOTE_E4, REST, NOTE_D4,
+  REST, NOTE_E4, REST, NOTE_FS4,
+  REST, REST, NOTE_CS6, REST,
+  NOTE_D6, REST, NOTE_E6, REST,
+  NOTE_CS6, REST, NOTE_D6, REST,
+  NOTE_E6, REST, NOTE_CS6, REST,
+  NOTE_D6, REST, NOTE_E6, REST,
+  NOTE_CS6, REST, NOTE_D6, REST,
+  NOTE_E6, REST, NOTE_F6, REST,
+  NOTE_G6, REST, NOTE_E6, REST,
+  NOTE_F6, REST, NOTE_G6, REST,
+  NOTE_E6, REST, NOTE_F6, REST,
+  NOTE_G6, REST, NOTE_E6, REST,
+  NOTE_F6, REST, NOTE_G6, REST,
+  NOTE_A6, REST, NOTE_AS6, REST,
+  NOTE_G6, REST, NOTE_A6, REST,
+  NOTE_AS6, REST, NOTE_G6, REST,
+  NOTE_A6, REST, NOTE_AS6, REST,
+  NOTE_G6, REST, NOTE_A6, REST,
+  NOTE_AS6, REST, NOTE_G6, REST,
+  NOTE_A6, REST, NOTE_G6, REST,
+  NOTE_A6, REST, NOTE_A7, REST,
+  NOTE_G5, REST, NOTE_AS5, REST,
+  NOTE_E6, REST, NOTE_G5, REST,
+  NOTE_AS5, REST, NOTE_E6, REST,
+  NOTE_F5, REST, NOTE_A5, REST,
+  NOTE_D6, REST, NOTE_F5, REST,
+  NOTE_A5, REST, NOTE_D6, REST,
+  NOTE_E5, REST, NOTE_G5, REST,
+  NOTE_C6, REST, NOTE_E5, REST,
+  NOTE_G5, REST, NOTE_C6, REST,
+  NOTE_D5, REST, NOTE_F5, REST,
+  NOTE_AS5, REST, NOTE_D5, REST,
+  NOTE_F5, REST, NOTE_AS5, REST,
+  NOTE_C5, REST, NOTE_E5, REST,
+  NOTE_A5, REST, NOTE_C5, REST,
+  NOTE_E5, REST, NOTE_A5, REST,
+  NOTE_AS4, REST, NOTE_D5, REST,
+  NOTE_G5, REST, NOTE_AS4, REST,
+  NOTE_D5, REST, NOTE_G5, REST,
+  NOTE_A4, REST, NOTE_C5, REST,
+  NOTE_F5, REST, NOTE_A4, REST,
+  NOTE_C5, REST, NOTE_F5, REST,
+  NOTE_G4, REST, NOTE_AS4, REST,
+  NOTE_E5, REST, NOTE_G4, REST,
+  NOTE_AS4, REST, NOTE_E5, REST,
+  NOTE_F4, REST, NOTE_A4, REST,
+  NOTE_D5, REST, NOTE_F4, REST
 };
-const int mario_durs[] = {
-  200, 200, 120, 200, 120, 200, 200, 120,
-  200, 140, 200, 140,
-  200, 120, 200, 120, 240, 120,
-  200, 120, 200, 120, 160, 200
+const int toccataLen[] = {
+  180, 180, 384, 492,
+  180, 180, 180, 180,
+  348, 36, 696, 144,
+  180, 180, 384, 492,
+  348, 36, 348, 36,
+  348, 36, 696, 2376,
+  180, 180, 384, 492,
+  180, 180, 180, 24,
+  348, 36, 696, 2376,
+  3060, 12, 2772, 300,
+  2772, 300, 2472, 600,
+  2772, 300, 2772, 300,
+  3060, 2784, 300, 696,
+  72, 696, 72, 2928,
+  3060, 156, 696, 72,
+  456, 48, 468, 48,
+  468, 48, 456, 48,
+  468, 48, 468, 48,
+  456, 48, 468, 48,
+  468, 48, 384, 384,
+  384, 384, 456, 48,
+  468, 48, 468, 48,
+  456, 48, 468, 48,
+  468, 48, 456, 48,
+  468, 48, 468, 48,
+  384, 384, 384, 384,
+  456, 48, 468, 48,
+  468, 48, 456, 48,
+  468, 48, 468, 48,
+  456, 48, 468, 48,
+  468, 48, 264, 252,
+  384, 3060, 3060, 408,
+  696, 72, 456, 48,
+  468, 48, 468, 48,
+  456, 48, 468, 48,
+  468, 48, 456, 48,
+  468, 48, 468, 48,
+  384, 384, 384, 384,
+  456, 48, 468, 48,
+  468, 48, 456, 48,
+  468, 48, 468, 48,
+  456, 48, 468, 48,
+  468, 48, 384, 3060,
+  3060, 408, 696, 72,
+  456, 48, 468, 48,
+  468, 48, 456, 48,
+  468, 48, 468, 48,
+  456, 48, 468, 48,
+  468, 48, 384, 384,
+  384, 384, 456, 48,
+  468, 48, 468, 48,
+  456, 48, 468, 48,
+  468, 48, 456, 48,
+  468, 48, 468, 48,
+  384, 384, 384, 384,
+  456, 48, 468, 48,
+  468, 48, 456, 48,
+  468, 48, 468, 48,
+  456, 48, 468, 48,
+  468, 48, 384, 3060,
+  3060, 408, 696, 72,
+  456, 48, 468, 48,
+  468, 48, 456, 48,
+  468, 48, 468, 48,
+  456, 48, 468, 48,
+  468, 48, 384, 384
 };
-const int MARIO_LEN = sizeof(mario_notes) / sizeof(mario_notes[0]);
-
-// === Mashup Melody ===
-const int mash_notes[] = {
-  
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8, //1
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_B2, 8, NOTE_C3, 8,
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8,
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, -2,
-
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8, //5
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_B2, 8, NOTE_C3, 8,
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8,
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, -2,
-
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8, //9
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_B2, 8, NOTE_C3, 8,
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8,
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, -2,
-
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8, //13
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_B2, 8, NOTE_C3, 8,
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8,
-  NOTE_FS3, -16, NOTE_D3, -16, NOTE_B2, -16, NOTE_A3, -16, NOTE_FS3, -16, NOTE_B2, -16, NOTE_D3, -16, NOTE_FS3, -16, NOTE_A3, -16, NOTE_FS3, -16, NOTE_D3, -16, NOTE_B2, -16,
-
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8, //17
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_B2, 8, NOTE_C3, 8,
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8,
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, -2,
-
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8, //21
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_B2, 8, NOTE_C3, 8,
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8,
-  NOTE_B3, -16, NOTE_G3, -16, NOTE_E3, -16, NOTE_G3, -16, NOTE_B3, -16, NOTE_E4, -16, NOTE_G3, -16, NOTE_B3, -16, NOTE_E4, -16, NOTE_B3, -16, NOTE_G4, -16, NOTE_B4, -16,
-
-  NOTE_A2, 8, NOTE_A2, 8, NOTE_A3, 8, NOTE_A2, 8, NOTE_A2, 8, NOTE_G3, 8, NOTE_A2, 8, NOTE_A2, 8, //25
-  NOTE_F3, 8, NOTE_A2, 8, NOTE_A2, 8, NOTE_DS3, 8, NOTE_A2, 8, NOTE_A2, 8, NOTE_E3, 8, NOTE_F3, 8,
-  NOTE_A2, 8, NOTE_A2, 8, NOTE_A3, 8, NOTE_A2, 8, NOTE_A2, 8, NOTE_G3, 8, NOTE_A2, 8, NOTE_A2, 8,
-  NOTE_F3, 8, NOTE_A2, 8, NOTE_A2, 8, NOTE_DS3, -2,
-
-  NOTE_A2, 8, NOTE_A2, 8, NOTE_A3, 8, NOTE_A2, 8, NOTE_A2, 8, NOTE_G3, 8, NOTE_A2, 8, NOTE_A2, 8, //29
-  NOTE_F3, 8, NOTE_A2, 8, NOTE_A2, 8, NOTE_DS3, 8, NOTE_A2, 8, NOTE_A2, 8, NOTE_E3, 8, NOTE_F3, 8,
-  NOTE_A2, 8, NOTE_A2, 8, NOTE_A3, 8, NOTE_A2, 8, NOTE_A2, 8, NOTE_G3, 8, NOTE_A2, 8, NOTE_A2, 8,
-  NOTE_A3, -16, NOTE_F3, -16, NOTE_D3, -16, NOTE_A3, -16, NOTE_F3, -16, NOTE_D3, -16, NOTE_C4, -16, NOTE_A3, -16, NOTE_F3, -16, NOTE_A3, -16, NOTE_F3, -16, NOTE_D3, -16,
-
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8, //33
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_B2, 8, NOTE_C3, 8,
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8,
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, -2,
-
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8, //37
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_B2, 8, NOTE_C3, 8,
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8,
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, -2,
-
-  NOTE_CS3, 8, NOTE_CS3, 8, NOTE_CS4, 8, NOTE_CS3, 8, NOTE_CS3, 8, NOTE_B3, 8, NOTE_CS3, 8, NOTE_CS3, 8, //41
-  NOTE_A3, 8, NOTE_CS3, 8, NOTE_CS3, 8, NOTE_G3, 8, NOTE_CS3, 8, NOTE_CS3, 8, NOTE_GS3, 8, NOTE_A3, 8,
-  NOTE_B2, 8, NOTE_B2, 8, NOTE_B3, 8, NOTE_B2, 8, NOTE_B2, 8, NOTE_A3, 8, NOTE_B2, 8, NOTE_B2, 8,
-  NOTE_G3, 8, NOTE_B2, 8, NOTE_B2, 8, NOTE_F3, -2,
-
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8, //45
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_B2, 8, NOTE_C3, 8,
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8,
-  NOTE_B3, -16, NOTE_G3, -16, NOTE_E3, -16, NOTE_G3, -16, NOTE_B3, -16, NOTE_E4, -16, NOTE_G3, -16, NOTE_B3, -16, NOTE_E4, -16, NOTE_B3, -16, NOTE_G4, -16, NOTE_B4, -16,
-
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8, //49
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_B2, 8, NOTE_C3, 8,
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8,
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, -2,
-
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8, //53
-  NOTE_C3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_AS2, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_B2, 8, NOTE_C3, 8,
-  NOTE_E2, 8, NOTE_E2, 8, NOTE_E3, 8, NOTE_E2, 8, NOTE_E2, 8, NOTE_D3, 8, NOTE_E2, 8, NOTE_E2, 8,
-  NOTE_FS3, -16, NOTE_DS3, -16, NOTE_B2, -16, NOTE_FS3, -16, NOTE_DS3, -16, NOTE_B2, -16, NOTE_G3, -16, NOTE_D3, -16, NOTE_B2, -16, NOTE_DS4, -16, NOTE_DS3, -16, NOTE_B2, -16,
-
-// -/- REST,
-};
-const int mash_durs[] = {
-  8, 8, 8, 8, 4, 8,
-  8, 8, 8, 8, 4, 8,
-  8, 8, 8, 8, 4, 8,
-  8, 8, 8, 8, 4, 8
-};
-const int MASH_LEN = sizeof(mash_notes) / sizeof(mash_notes[0]);
+const int TOCCATA_LEN = sizeof(toccataMel) / sizeof(toccataMel[0]);
 
 void setup() {
   pinMode(BTN1, INPUT_PULLUP);
@@ -151,12 +179,12 @@ void loop() {
   // HOLD: lights off, no sound, wait for a press (active-low)
   if (digitalRead(BTN1) == LOW) {
     digitalWrite(SIGNAL_PIN, HIGH); // Signal puppetBaseLights to hold (active HIGH)
-    playFor30s(LED1, mash_notes, mash_durs, MASH_LEN);
+    playFor30s(LED1, toccataMel, toccataLen, TOCCATA_LEN);
     digitalWrite(SIGNAL_PIN, LOW);  // Release hold after playing
     holdState();
   } else if (digitalRead(BTN2) == LOW) {
     digitalWrite(SIGNAL_PIN, HIGH); // Signal puppetBaseLights to hold (active HIGH)
-    playFor10s(LED2, mario_notes, mario_durs, MARIO_LEN);
+    playFor10s(LED2, imperial_notes, imperial_durs, IMPERIAL_LEN);
     digitalWrite(SIGNAL_PIN, LOW);  // Release hold after playing
     holdState();
   }
@@ -198,7 +226,7 @@ void playFor30s(int ledPin, const int *notes, const int *durs, int len) {
   while (millis() - start < 30000UL) {
     for (int i = 0; i < len && (millis() - start) < 30000UL; i++) {
       int n = notes[i];
-      int d = durs[i] * 100; // Adjust duration for tempo
+      int d = durs[i];
       if (n == REST) {
         noTone(BUZZ);
         delay(d);

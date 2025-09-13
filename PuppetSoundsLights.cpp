@@ -2,6 +2,8 @@
 #include <Arduino.h>
 #include "pitches.h"
 
+#define REST 0
+
 // === Pin Assignments ===
 const int BTN1 = 2;    // Button 1 (to GND, use INPUT_PULLUP)
 const int BTN2 = 3;    // Button 2 (to GND, use INPUT_PULLUP)
@@ -10,39 +12,157 @@ const int LED2 = 10;   // LED for button 2
 const int BUZZ = 8;    // Piezo/speaker
 const int SIGNAL_PIN = 4; // Pin to signal puppetBaseLights (connect to its pin 2)
 
-// === Mashup Melody (Toccata and Fugue placeholder) ===
-const int mash_notes[] = {
-  NOTE_C4, NOTE_E4, NOTE_G4, NOTE_E4, NOTE_C4, REST,
-  NOTE_C4, NOTE_E4, NOTE_G4, NOTE_E4, NOTE_C4, REST,
-  NOTE_D4, NOTE_F4, NOTE_A4, NOTE_F4, NOTE_D4, REST,
-  NOTE_D4, NOTE_F4, NOTE_A4, NOTE_F4, NOTE_D4, REST,
+// === Imperial March Melody ===
+const int imperial_notes[] = {
+  NOTE_A4, NOTE_A4, NOTE_F4, NOTE_C5, NOTE_A4, NOTE_F4, NOTE_C5, NOTE_A4,
+  NOTE_E5, NOTE_E5, NOTE_E5, NOTE_F5, NOTE_C5, NOTE_GS4, NOTE_F4, NOTE_C5, NOTE_A4,
+  REST, NOTE_A5, NOTE_A4, NOTE_A4, NOTE_A5, NOTE_GS5, NOTE_G5, NOTE_FS5, NOTE_F5, NOTE_FS5,
+  REST, NOTE_AS4, NOTE_DS5, NOTE_D5, NOTE_CS5, NOTE_C5, NOTE_B4, NOTE_C5,
+  REST, NOTE_F4, NOTE_GS4, NOTE_F4, NOTE_C5, NOTE_A4,
+  REST
 };
-const int mash_durs[] = {
-  8, 8, 8, 8, 4, 8,
-  8, 8, 8, 8, 4, 8,
-  8, 8, 8, 8, 4, 8,
-  8, 8, 8, 8, 4, 8
+const int imperial_durs[] = {
+  550, 550, 550, 385, 165, 550, 385, 165,
+  550, 385, 165, 550, 385, 165, 550, 385, 165,
+  550, 550, 550, 550, 385, 165, 550, 385, 165,
+  550, 275, 550, 275, 550, 138, 138, 275,
+  275, 275, 550, 275, 550, 275,
+  1100
 };
-const int MASH_LEN = sizeof(mash_notes) / sizeof(mash_notes[0]);
+const int IMPERIAL_LEN = sizeof(imperial_notes) / sizeof(imperial_notes[0]);
 
-// === Tetris Theme (from robsoncouto/arduino-songs) ===
-const int tetris_notes[] = {
-  NOTE_E5, NOTE_B4, NOTE_C5, NOTE_D5, NOTE_C5, NOTE_B4, NOTE_A4, NOTE_A4,
-  NOTE_C5, NOTE_E5, NOTE_D5, NOTE_C5, NOTE_B4, NOTE_C5, NOTE_D5, NOTE_E5,
-  NOTE_C5, NOTE_A4, NOTE_A4, REST,
-  NOTE_D5, NOTE_F5, NOTE_A5, NOTE_G5, NOTE_F5, NOTE_E5, NOTE_C5, NOTE_E5,
-  NOTE_D5, NOTE_C5, NOTE_B4, NOTE_B4, NOTE_C5, NOTE_D5, NOTE_E5, NOTE_C5,
-  NOTE_A4, NOTE_A4, REST
+// === New Toccata Melody ===
+const int toccataMel[] = {
+  NOTE_A5, NOTE_G6, NOTE_A5, REST,
+  NOTE_G5, NOTE_F5, NOTE_E5, NOTE_D5,
+  NOTE_CS6, REST, NOTE_D6, REST,
+  NOTE_A4, NOTE_G5, NOTE_A4, REST,
+  NOTE_E4, REST, NOTE_F4, REST,
+  NOTE_CS5, REST, NOTE_D5, REST,
+  NOTE_A3, NOTE_G4, NOTE_A3, REST,
+  NOTE_G3, NOTE_F3, NOTE_E3, NOTE_D3,
+  NOTE_CS4, REST, NOTE_D4, REST,
+  NOTE_D3, NOTE_D3, NOTE_AS3, REST,
+  NOTE_CS4, REST, NOTE_D4, REST,
+  NOTE_E4, REST, NOTE_E4, REST,
+  NOTE_E4, NOTE_E4, REST, NOTE_D4,
+  REST, NOTE_E4, REST, NOTE_FS4,
+  REST, REST, NOTE_CS6, REST,
+  NOTE_D6, REST, NOTE_E6, REST,
+  NOTE_CS6, REST, NOTE_D6, REST,
+  NOTE_E6, REST, NOTE_CS6, REST,
+  NOTE_D6, REST, NOTE_E6, REST,
+  NOTE_CS6, REST, NOTE_D6, REST,
+  NOTE_E6, REST, NOTE_F6, REST,
+  NOTE_G6, REST, NOTE_E6, REST,
+  NOTE_F6, REST, NOTE_G6, REST,
+  NOTE_E6, REST, NOTE_F6, REST,
+  NOTE_G6, REST, NOTE_E6, REST,
+  NOTE_F6, REST, NOTE_G6, REST,
+  NOTE_A6, REST, NOTE_AS6, REST,
+  NOTE_G6, REST, NOTE_A6, REST,
+  NOTE_AS6, REST, NOTE_G6, REST,
+  NOTE_A6, REST, NOTE_AS6, REST,
+  NOTE_G6, REST, NOTE_A6, REST,
+  NOTE_AS6, REST, NOTE_G6, REST,
+  NOTE_A6, REST, NOTE_G6, REST,
+  NOTE_A6, REST, NOTE_A7, REST,
+  NOTE_G5, REST, NOTE_AS5, REST,
+  NOTE_E6, REST, NOTE_G5, REST,
+  NOTE_AS5, REST, NOTE_E6, REST,
+  NOTE_F5, REST, NOTE_A5, REST,
+  NOTE_D6, REST, NOTE_F5, REST,
+  NOTE_A5, REST, NOTE_D6, REST,
+  NOTE_E5, REST, NOTE_G5, REST,
+  NOTE_C6, REST, NOTE_E5, REST,
+  NOTE_G5, REST, NOTE_C6, REST,
+  NOTE_D5, REST, NOTE_F5, REST,
+  NOTE_AS5, REST, NOTE_D5, REST,
+  NOTE_F5, REST, NOTE_AS5, REST,
+  NOTE_C5, REST, NOTE_E5, REST,
+  NOTE_A5, REST, NOTE_C5, REST,
+  NOTE_E5, REST, NOTE_A5, REST,
+  NOTE_AS4, REST, NOTE_D5, REST,
+  NOTE_G5, REST, NOTE_AS4, REST,
+  NOTE_D5, REST, NOTE_G5, REST,
+  NOTE_A4, REST, NOTE_C5, REST,
+  NOTE_F5, REST, NOTE_A4, REST,
+  NOTE_C5, REST, NOTE_F5, REST,
+  NOTE_G4, REST, NOTE_AS4, REST,
+  NOTE_E5, REST, NOTE_G4, REST,
+  NOTE_AS4, REST, NOTE_E5, REST,
+  NOTE_F4, REST, NOTE_A4, REST,
+  NOTE_D5, REST, NOTE_F4, REST
 };
-const int tetris_durs[] = {
-  125, 125, 250, 250, 250, 125, 250, 125,
-  125, 250, 250, 250, 125, 250, 125, 125,
-  250, 250, 250, 250,
-  125, 125, 250, 250, 250, 125, 250, 125,
-  125, 250, 250, 250, 125, 250, 125, 125,
-  250, 250, 250
+const int toccataLen[] = {
+  270, 270, 576, 738,
+  270, 270, 270, 270,
+  522, 54, 1044, 216,
+  270, 270, 576, 738,
+  522, 54, 522, 54,
+  522, 54, 1044, 3564,
+  270, 270, 576, 738,
+  270, 270, 270, 36,
+  522, 54, 1044, 3564,
+  4590, 18, 4158, 450,
+  4158, 450, 3708, 900,
+  4158, 450, 4158, 450,
+  4590, 4176, 450, 1044,
+  108, 1044, 108, 4392,
+  4590, 234, 1044, 108,
+  684, 72, 702, 72,
+  702, 72, 684, 72,
+  702, 72, 702, 72,
+  684, 72, 702, 72,
+  702, 72, 576, 576,
+  576, 576, 684, 72,
+  702, 72, 702, 72,
+  684, 72, 702, 72,
+  702, 72, 684, 72,
+  702, 72, 702, 72,
+  576, 576, 576, 576,
+  684, 72, 702, 72,
+  702, 72, 684, 72,
+  702, 72, 702, 72,
+  684, 72, 702, 72,
+  702, 72, 396, 378,
+  576, 4590, 4590, 612,
+  1044, 108, 684, 72,
+  702, 72, 702, 72,
+  684, 72, 702, 72,
+  702, 72, 684, 72,
+  702, 72, 702, 72,
+  576, 576, 576, 576,
+  684, 72, 702, 72,
+  702, 72, 684, 72,
+  702, 72, 702, 72,
+  684, 72, 702, 72,
+  702, 72, 576, 4590,
+  4590, 612, 1044, 108,
+  684, 72, 702, 72,
+  702, 72, 684, 72,
+  702, 72, 702, 72,
+  684, 72, 702, 72,
+  702, 72, 576, 576,
+  576, 576, 684, 72,
+  702, 72, 702, 72,
+  684, 72, 702, 72,
+  702, 72, 684, 72,
+  702, 72, 702, 72,
+  576, 576, 576, 576,
+  684, 72, 702, 72,
+  702, 72, 684, 72,
+  702, 72, 702, 72,
+  684, 72, 702, 72,
+  702, 72, 576, 4590,
+  4590, 612, 1044, 108,
+  684, 72, 702, 72,
+  702, 72, 684, 72,
+  702, 72, 702, 72,
+  684, 72, 702, 72,
+  702, 72, 576, 576
 };
-const int TETRIS_LEN = sizeof(tetris_notes) / sizeof(tetris_notes[0]);
+const int TOCCATA_LEN = sizeof(toccataMel) / sizeof(toccataMel[0]);
 
 void setup() {
   pinMode(BTN1, INPUT_PULLUP);
@@ -59,12 +179,12 @@ void loop() {
   // HOLD: lights off, no sound, wait for a press (active-low)
   if (digitalRead(BTN1) == LOW) {
     digitalWrite(SIGNAL_PIN, HIGH); // Signal puppetBaseLights to hold (active HIGH)
-    playFor30s(LED1, mash_notes, mash_durs, MASH_LEN);
+    playFor30s(LED1, toccataMel, toccataLen, TOCCATA_LEN);
     digitalWrite(SIGNAL_PIN, LOW);  // Release hold after playing
     holdState();
   } else if (digitalRead(BTN2) == LOW) {
     digitalWrite(SIGNAL_PIN, HIGH); // Signal puppetBaseLights to hold (active HIGH)
-    playFor10s(LED2, tetris_notes, tetris_durs, TETRIS_LEN);
+    playFor10s(LED2, imperial_notes, imperial_durs, IMPERIAL_LEN);
     digitalWrite(SIGNAL_PIN, LOW);  // Release hold after playing
     holdState();
   }
@@ -106,7 +226,7 @@ void playFor30s(int ledPin, const int *notes, const int *durs, int len) {
   while (millis() - start < 30000UL) {
     for (int i = 0; i < len && (millis() - start) < 30000UL; i++) {
       int n = notes[i];
-      int d = durs[i] * 100; // Adjust duration for tempo
+      int d = durs[i];
       if (n == REST) {
         noTone(BUZZ);
         delay(d);
